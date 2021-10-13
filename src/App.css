@@ -5,6 +5,7 @@
 }
 .layout{
   min-height: 100vh;
+  min-width: 450px;
 }
 .site-layout-content {
   display: flex;
@@ -25,4 +26,12 @@
 .ant-row-rtl #components-layout-demo-top .logo {
   float: right;
   margin: 16px 0 16px 24px;
+}
+.add__btn{
+  /* position: relative;
+  top: 0.5rem;
+  bottom: 3rem; */
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1rem;
 }
