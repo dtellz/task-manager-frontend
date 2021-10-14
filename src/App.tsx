@@ -6,10 +6,17 @@ import itopLogo from './assets/Itop-a30c6bc6.png'
 // import curieLogo from './assets/curie-logo.png'
 import { Layout, Menu, Breadcrumb } from 'antd';
 import TaskCard from './components/card/index'
-import { Button } from 'antd';
+import { Button, Popover } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { CreateTaskModal } from './components/createTaskModal';
 
+
+const content = (
+  <div className="centered">
+    <p>Click to add</p>
+    <p>a new task</p>
+  </div>
+);
 const { Header, Footer, Content } = Layout;
 
 function App() {
@@ -17,7 +24,9 @@ function App() {
   const [tasks, setTasks] = useState<TaskDTO[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [update, setUpdate] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setshowCreateModal] = useState(false);
+
+
 
 
   useEffect(() => {
@@ -36,19 +45,13 @@ function App() {
   function updateRender() {
     update === false ? setUpdate(true) : setUpdate(false);
   }
-  function handleCreation() {
-    setShowModal(true);
-    // async function create() {
-
-    //   // await TaskAPI.createOne();
-
-    // }
-    // create();
-
+  function handleCreationModalShow() {
+    setshowCreateModal(true);
+    //we re-render for new tasks to show. Might be kind of inefficient but it will do the job for now.
     updateRender();
   }
-  function resetModal() {
-    setShowModal(false)
+  function resetCreateModal() {
+    setshowCreateModal(false)
   }
 
   const taskCards = tasks.map((t, i) => {
@@ -69,17 +72,20 @@ function App() {
         </Menu>
       </Header>
       <Content style={{ padding: '0 50px' }}>
+
         <Breadcrumb style={{ margin: '16px 0' }}>
           <Breadcrumb.Item>Task Manager</Breadcrumb.Item>
         </Breadcrumb>
+
         <div className='add__btn'>
-          <Button type="primary" shape="circle" icon={<PlusOutlined />} size='large' onClick={handleCreation} />
+          <Popover content={content} title="">
+            <Button type="primary" shape="circle" icon={<PlusOutlined />} size='large' onClick={handleCreationModalShow} />
+          </Popover>
         </div>
+
         <div className="site-layout-content">
           {taskCards}
-
-          {showModal ? <CreateTaskModal showAgain={resetModal}></CreateTaskModal> : console.log()}
-
+          {showCreateModal ? <CreateTaskModal update={updateRender} showAgain={resetCreateModal}></CreateTaskModal> : console.log()}
         </div>
 
       </Content>
@@ -90,6 +96,8 @@ function App() {
 }
 
 export default App;
+
+
 
 
 

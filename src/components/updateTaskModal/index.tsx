@@ -5,31 +5,37 @@ import { TaskAPI } from '../../api/task.api'
 
 interface Props {
     showAgain: Function,
-    update: Function
+    update: Function,
+    taskId: Number,
+    taskStatus: Number,
+    taskEndTime: Date
 }
 
-export const CreateTaskModal = (props: Props) => {
+export const UpdateTaskModal = (props: Props) => {
     const [isModalVisible, setIsModalVisible] = useState(true);
     const { Option } = Select;
     const [title, setTitle] = useState('');
     const [priorityOption, setPriorityOption] = useState('');
+    const [statusOption, setStatusOption] = useState('');
+
 
     const handleOk = () => {
 
         const priority = priorityOption === 'High' ? 0 : priorityOption === 'Mid' ? 1 : 2;
+        const status = statusOption === 'Pending' ? 0 : statusOption === 'Done' ? 1 : 2;
+        const endTime = statusOption === 'Done' ? new Date() : props.taskEndTime;
 
-        const createTask = async () => {
-            const resp = await TaskAPI.createOne({
+        const updateTask = async () => {
+            const resp = await TaskAPI.updateOne({
                 title,
+                status,
                 priority,
-            })
-            console.log(resp)
-            //if id exists, task was succesfully created
-            resp.id ? message.success(`Task #${resp.id} created.`) : message.error('Could not create task.');
-
+                endTime,
+            }, props.taskId)
+            resp.id ? message.success(`Task #${resp.id} updated.`) : message.error('Could not update task.');
         }
 
-        createTask();
+        updateTask();
         setIsModalVisible(false);
         props.showAgain();
         props.update();
@@ -40,19 +46,11 @@ export const CreateTaskModal = (props: Props) => {
         props.showAgain();
     };
 
-    // const Demo = () => {
-    //     const onFinish = (values: any) => {
-    //         console.log('Success:', values);
-    //     };
-
-    //     const onFinishFailed = (errorInfo: any) => {
-    //         console.log('Failed:', errorInfo);
-    //     };
-
     return (
 
-        <Modal title="Create task form" visible={isModalVisible} onCancel={handleCancel} footer={null}>
-            <Form
+        <Modal title="Update task form" visible={isModalVisible} onCancel={handleCancel} footer={null}>
+            {/* conditional render to only show update form on pending tasks */}
+            {props.taskStatus === 0 ? <Form
                 name="Daily meeting"
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 8 }}
@@ -72,6 +70,19 @@ export const CreateTaskModal = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item
+                    label="Status"
+                    name="status"
+                    rules={[{ required: true, message: 'Please set task status.' }]}
+                >
+                    <Select id="stat" value="Pending" onSelect={(value) => { setStatusOption(value) }} >
+                        <Option value="Pending">Pending</Option>
+                        <Option value="Done">Done</Option>
+                        <Option value="Cancelled">Cancelled</Option>
+                    </Select>
+
+                </Form.Item>
+
+                {statusOption === 'Pending' ? <Form.Item
                     label="Priority"
                     name="priority"
                     rules={[{ required: true, message: 'Please set task priority.' }]}
@@ -82,15 +93,15 @@ export const CreateTaskModal = (props: Props) => {
                         <Option value="Low">Low</Option>
                     </Select>
 
-                </Form.Item>
+                </Form.Item> : console.log()}
 
 
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                     <Button type="primary" onClick={handleOk}>
-                        Create Task
+                        Update Task
                     </Button>
                 </Form.Item>
-            </Form>
+            </Form> : <p>You cant update a finished or cancelled task. Please create a new one.</p>}
         </Modal>
 
     );
